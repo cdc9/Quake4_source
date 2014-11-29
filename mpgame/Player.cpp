@@ -4124,6 +4124,61 @@ void idPlayer::FireWeapon( void ) {
 		weaponChangeIconsUp = false;
 	}
 }
+/*
+===============
+idPlayer::FireWeapon2
+===============
+*/
+void idPlayer::FireWeapon2( void ) {
+	idMat3 axis;
+	idVec3 muzzle;
+
+	if ( gameLocal.GetIsFrozen() && gameLocal.gameType == GAME_DEADZONE ) {
+		return;
+	}
+	if ( privateCameraView ) {
+		return;
+	}
+
+	if ( g_editEntityMode.GetInteger() ) {
+		GetViewPos( muzzle, axis );
+		gameLocal.editEntities->SelectEntity( muzzle, axis[0], this );	
+		return;
+	}
+
+	if ( !hiddenWeapon && weapon->IsReady() ) {
+		// cheap hack so in MP the LG isn't allowed to fire in the short lapse while it goes from Fire -> Idle before changing to another weapon
+		// this gimps the weapon a lil bit but is consistent with the visual feedback clients are getting since 1.0
+		bool noFireWhileSwitching = false;
+		noFireWhileSwitching = ( gameLocal.isMultiplayer && idealWeapon != currentWeapon && weapon->NoFireWhileSwitching() );
+		if ( !noFireWhileSwitching ) {
+			if ( weapon->AmmoInClip() || weapon->AmmoAvailable() ) {
+				pfl.attackHeld = true;
+				weapon->BeginAttack();
+			} else {
+				pfl.attackHeld = false;
+				pfl.weaponFired = false;
+				StopFiring();
+				NextBestWeapon();
+			}
+		} else {
+			StopFiring();
+		}
+	}
+	// If reloading when fire is hit cancel the reload
+	else if ( weapon->IsReloading() ) {
+		weapon->CancelReload();
+	}
+
+	if ( hud && weaponChangeIconsUp ) {
+		hud->HandleNamedEvent( "weaponFire" );
+		// nrausch: objectiveSystem does not necessarily exist (in mp it doesn't)
+		if ( objectiveSystem ) {
+			objectiveSystem->HandleNamedEvent( "weaponFire" );
+		}
+		weaponChangeIconsUp = false;
+	}
+}
 
 /*
 ===============
@@ -8500,7 +8555,16 @@ void idPlayer::PerformImpulse( int impulse ) {
    			}
    			break;
    		}
-				
+		case IMPULSE_23: {
+			if(impulse == 2){
+			FireWeapon2();
+			
+			if( gameLocal.isServer && spectating && gameLocal.gameType == GAME_TOURNEY ) {	
+				((rvTourneyGameState*)gameLocal.mpGame.GetGameState())->SpectateCycleNext( this );
+			}
+			}
+			break;
+		}		
 		case IMPULSE_28: {
  			if ( gameLocal.isClient || entityNumber == gameLocal.localClientNum ) {
  				gameLocal.mpGame.CastVote( gameLocal.localClientNum, true );

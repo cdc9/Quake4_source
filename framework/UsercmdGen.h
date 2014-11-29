@@ -37,7 +37,8 @@ const int BUTTON_TOURNEY		= BIT(7);
 // twhitaker: strafe
 const int BUTTON_STRAFE			= BIT(8);
 // RAVEN END
-
+// Player Mod
+const int BUTTON_ATTACK2		= BIT(9);
 
 // usercmd_t->impulse commands
 const int IMPULSE_0				= 0;			// weap 0
@@ -63,7 +64,7 @@ const int IMPULSE_19			= 19;			// show PDA/INV/MAP
 const int IMPULSE_20			= 20;			// toggle team ( toggles ui_team )
 const int IMPULSE_21			= 21;			// tourney toggle waiting room/spec
 const int IMPULSE_22			= 22;			// spectate
-const int IMPULSE_23			= 23;			// <unused>
+const int IMPULSE_23			= 23;			// Used to launch grenades with machine gun
 const int IMPULSE_24			= 24;			// <unused>
 const int IMPULSE_25			= 25;			// <unused>
 const int IMPULSE_26			= 26;			// <unused>

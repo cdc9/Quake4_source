@@ -1479,13 +1479,21 @@ void rvWeapon::Restore ( idRestoreGame *savefile ) {
 	wfl.attackHitscan = false;
 	if ( def ) {
 		attackDict = def->dict;
-	} else {
+	} else if(def) {
 		def = gameLocal.FindEntityDef( spawnArgs.GetString( "def_hitscan" ), false );
 		if ( def ) {
 			attackDict = def->dict;
 			wfl.attackHitscan = true;
 		}
 	}
+	else {
+	def = gameLocal.FindEntityDef( spawnArgs.GetString( "def_projectile2" ), false );
+	wfl.attackHitscan = false;
+	if ( def ) {
+		attackDict = def->dict;
+	}
+	}
+
 
 	// Brass Def
 	def = gameLocal.FindEntityDef( spawnArgs.GetString( "def_ejectBrass" ), false );

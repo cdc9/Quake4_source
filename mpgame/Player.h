@@ -1005,6 +1005,7 @@ private:
 
 	void					StopFiring( void );
 	void					FireWeapon( void );
+	void					FireWeapon2( void );
 	void					Weapon_Combat( void );
 	void					Weapon_NPC( void );
 	void					Weapon_GUI( void );
