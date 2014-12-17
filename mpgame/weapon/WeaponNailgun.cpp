@@ -33,7 +33,7 @@ public:
 	rvWeaponNailgun ( void );
 	~rvWeaponNailgun ( void );
 
-	virtual void		Spawn					( void );
+	//virtual void		Spawn					( void );
 	virtual void		Think					( void );
 	void				Save				( idSaveGame *savefile ) const;
 	void				Restore				( idRestoreGame *savefile );
@@ -116,6 +116,7 @@ rvWeaponNailgun::~rvWeaponNailgun ( void ) {
 rvWeaponNailgun::Spawn
 ================
 */
+/*
 void rvWeaponNailgun::Spawn ( void ) {
 	spawnArgs.GetFloat ( "lockRange", "1000", guideRange );
 	guideHoldTime = SEC2MS ( spawnArgs.GetFloat ( "lockHoldTime", "10" ) );
@@ -135,7 +136,7 @@ void rvWeaponNailgun::Spawn ( void ) {
 	ExecuteState ( "ClaspClose" );	
 	SetState ( "Raise", 0 );	
 }
-
+*/
 /*
 ================
 rvWeaponNailgun::Save

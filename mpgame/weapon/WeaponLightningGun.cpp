@@ -34,7 +34,7 @@ public:
 	rvWeaponLightningGun( void );
 	~rvWeaponLightningGun( void );
 
-	virtual void			Spawn		( void );
+	//virtual void			Spawn		( void );
 	virtual void			Think		( void );
 
 	virtual void			ClientStale	( void );
@@ -132,6 +132,7 @@ rvWeaponLightningGun::~rvWeaponLightningGun( void ) {
 rvWeaponLightningGun::Spawn
 ================
 */
+/*
 void rvWeaponLightningGun::Spawn( void ) {
 	int i;
 	
@@ -166,7 +167,7 @@ void rvWeaponLightningGun::Spawn( void ) {
 	
 	SetState ( "Raise", 0 );
 }
-
+*/
 /*
 ================
 rvWeaponLightningGun::Save

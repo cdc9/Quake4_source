@@ -11,7 +11,7 @@ public:
 
 	rvWeaponGrenadeLauncher ( void );
 
-	virtual void			Spawn				( void );
+	//virtual void			Spawn				( void );
 	void					PreSave				( void );
 	void					PostSave			( void );
 
@@ -47,10 +47,11 @@ rvWeaponGrenadeLauncher::rvWeaponGrenadeLauncher ( void ) {
 rvWeaponGrenadeLauncher::Spawn
 ================
 */
+/*
 void rvWeaponGrenadeLauncher::Spawn ( void ) {
 	SetState ( "Raise", 0 );	
 }
-
+*/
 /*
 ================
 rvWeaponGrenadeLauncher::PreSave

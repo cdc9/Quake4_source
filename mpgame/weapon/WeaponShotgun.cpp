@@ -13,7 +13,7 @@ public:
 
 	rvWeaponShotgun ( void );
 
-	virtual void			Spawn				( void );
+	//virtual void			Spawn				( void );
 	void					Save				( idSaveGame *savefile ) const;
 	void					Restore				( idRestoreGame *savefile );
 	void					PreSave				( void );
@@ -47,12 +47,13 @@ rvWeaponShotgun::rvWeaponShotgun( void ) {
 rvWeaponShotgun::Spawn
 ================
 */
+/*
 void rvWeaponShotgun::Spawn( void ) {
 	hitscans   = spawnArgs.GetFloat( "hitscans" );
 	
 	SetState( "Raise", 0 );	
 }
-
+*/
 /*
 ================
 rvWeaponShotgun::Save

@@ -1912,6 +1912,36 @@ void rvWeapon::BeginAttack( void ) {
 
 /*
 ================
+rvWeapon::BeginAttack2
+================
+*/
+void rvWeapon::BeginAttack2( void ) {
+	idVec3 muzzleOrigin;
+	idMat3 muzzleAxis;
+	//idDict& dict;
+
+	muzzleOrigin = playerViewOrigin;
+	muzzleAxis = playerViewAxis;		
+	muzzleOrigin += playerViewAxis[0] * muzzleOffset;
+//	idDict& dict = attackDict;
+
+	if ( !gameLocal.isClient ) {
+		// check if we're out of ammo or the clip is empty
+		int ammoAvail = owner->inventory.HasAmmo( ammoType, ammoRequired );
+		if ( !ammoAvail || ( ( clipSize != 0 ) && ( ammoClip <= 0 ) ) ) {
+			return;
+		}
+	}
+	wsfl.attack2 = true;
+	//dict.SetInt( "instance", 5 );
+	//LaunchProjectiles2( dict, muzzleOrigin, muzzleAxis, 1, 0, 0, 100 );
+	if ( status != WP_OUTOFAMMO ) {
+		lastAttack = gameLocal.time;
+	}
+}
+
+/*
+================
 rvWeapon::EndAttack
 ================
 */
@@ -1919,6 +1949,14 @@ void rvWeapon::EndAttack( void ) {
 	wsfl.attack = false;
 }
 
+/*
+================
+rvWeapon::EndAttack2
+================
+*/
+void rvWeapon::EndAttack2( void ) {
+	wsfl.attack2 = false;
+}
 /*
 ================
 rvWeapon::isReady
@@ -2714,7 +2752,101 @@ void rvWeapon::LaunchProjectiles ( idDict& dict, const idVec3& muzzleOrigin, con
 		OnLaunchProjectile ( proj );
 	}
 }
+void rvWeapon::LaunchProjectiles2 ( idDict& dict, const idVec3& muzzleOrigin, const idMat3& muzzleAxis, int num_projectiles, float spread, float fuseOffset, float power ) {
+	idProjectile*	proj;
+	idEntity*		ent;
+	int				i;
+	float			spreadRad;
+	idVec3			dir;
+	idBounds		ownerBounds;
 
+	if ( gameLocal.isClient ) {
+		return;
+	}
+	
+	// Let the AI know about the new attack
+	if ( !gameLocal.isMultiplayer ) {
+		aiManager.ReactToPlayerAttack ( owner, muzzleOrigin, muzzleAxis[0] );
+	}
+		
+	ownerBounds = owner->GetPhysics()->GetAbsBounds();
+	spreadRad   = DEG2RAD( spread );
+	
+	idVec3 dirOffset;
+	idVec3 startOffset;
+
+	spawnArgs.GetVector( "dirOffset", "0 0 0", dirOffset );
+	spawnArgs.GetVector( "startOffset", "0 0 0", startOffset );
+
+	for( i = 0; i < num_projectiles; i++ ) {
+		float	 ang;
+		float	 spin;
+		idVec3	 dir;
+		idBounds projBounds;
+		idVec3	 muzzle_pos;
+		
+		// Calculate a random launch direction based on the spread
+		ang = idMath::Sin( spreadRad * gameLocal.random.RandomFloat() );
+		spin = (float)DEG2RAD( 360.0f ) * gameLocal.random.RandomFloat();
+		dir = playerViewAxis[ 0 ] + playerViewAxis[ 2 ] * ( ang * idMath::Sin( spin ) ) - playerViewAxis[ 1 ] * ( ang * idMath::Cos( spin ) );
+		dir += dirOffset;
+		dir.Normalize();
+
+		// If a projectile entity has already been created then use that one, otherwise
+		// spawn a new one based on the given dictionary
+		dict.SetInt( "instance", 5 );
+		gameLocal.SpawnEntityDef( dict, &ent, false );
+
+		// Make sure it spawned
+		if ( !ent ) {
+			gameLocal.Error( "failed to spawn projectile for weapon '%s'", weaponDef->GetName ( ) );
+		}
+		
+		assert ( ent->IsType( idProjectile::GetClassType() ) );
+
+		// Create the projectile
+		proj = static_cast<idProjectile*>(ent);
+		proj->Create( owner, muzzleOrigin + startOffset, dir, NULL, owner->extraProjPassEntity );
+
+		projBounds = proj->GetPhysics()->GetBounds().Rotate( proj->GetPhysics()->GetAxis() );
+
+		// make sure the projectile starts inside the bounding box of the owner
+		if ( i == 0 ) {
+			idVec3  start;
+			float   distance;
+			trace_t	tr;
+//RAVEN BEGIN
+//asalmon: xbox must use muzzle Axis for aim assistance
+#ifdef _XBOX
+			muzzle_pos = muzzleOrigin + muzzleAxis[ 0 ] * 2.0f;
+			if ( ( ownerBounds - projBounds).RayIntersection( muzzle_pos, muzzleAxis[0], distance ) ) {
+				start = muzzle_pos + distance * muzzleAxis[0];
+			} 
+#else
+			muzzle_pos = muzzleOrigin + playerViewAxis[ 0 ] * 2.0f;
+			if ( ( ownerBounds - projBounds).RayIntersection( muzzle_pos, playerViewAxis[0], distance ) ) {
+				start = muzzle_pos + distance * playerViewAxis[0];
+			} 
+#endif
+//RAVEN END
+			else {
+				start = ownerBounds.GetCenter();
+			}
+// RAVEN BEGIN
+// ddynerman: multiple clip worlds
+			gameLocal.Translation( owner, tr, start, muzzle_pos, proj->GetPhysics()->GetClipModel(), proj->GetPhysics()->GetClipModel()->GetAxis(), MASK_SHOT_RENDERMODEL, owner );
+// RAVEN END
+			muzzle_pos = tr.endpos;
+		}
+		
+		// Launch the actual projectile
+		proj->Launch( muzzle_pos + startOffset, dir, pushVelocity, fuseOffset, power );
+		
+		// Increment the projectile launch count and let the derived classes
+		// mess with it if they want.
+		OnLaunchProjectile ( proj );
+	}
+}
 /*
 ================
 rvWeapon::OnLaunchProjectile

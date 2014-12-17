@@ -211,6 +211,7 @@ public:
 	// Attack
 	bool				PerformAttack				( idVec3& muzzleOrigin, idMat3& muzzleAxis, float dmgPower );
 	void				LaunchProjectiles			( idDict& dict, const idVec3& muzzleOrigin, const idMat3& muzzleAxis, int num_projectiles, float spread, float fuseOffset, float power );
+	void				LaunchProjectiles2			( idDict& dict, const idVec3& muzzleOrigin, const idMat3& muzzleAxis, int num_projectiles, float spread, float fuseOffset, float power );
 	void				Hitscan						( const idDict& dict, const idVec3& muzzleOrigin, const idMat3& muzzleAxis, int num_hitscans, float spread, float power );
 	void				AlertMonsters				( void );
 
@@ -236,6 +237,8 @@ public:
 	void				EnterCinematic				( void );
 	void				ExitCinematic				( void );
 
+	void				BeginAttack2				( void );
+	void				EndAttack2					( void );
 protected:
 
 	virtual void		OnLaunchProjectile			( idProjectile* proj );
@@ -281,6 +284,7 @@ public:
 		bool		lowerWeapon			:1;
 		bool		flashlight			:1;
 		bool		zoom				:1;
+		bool		attack2				:1;
 	} wsfl;		
 	
 	// Generic flags

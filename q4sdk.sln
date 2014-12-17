@@ -1,9 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "game", "game.vcxproj", "{49BEC5C6-B964-417A-851E-808886B57430}"
-	ProjectSection(ProjectDependencies) = postProject
-		{F2EF9123-B7C3-4F2F-A351-747B595BB534} = {F2EF9123-B7C3-4F2F-A351-747B595BB534}
-	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "idlib", "idlib.vcxproj", "{49BEC5C6-B964-417A-851E-808886B57400}"
 EndProject

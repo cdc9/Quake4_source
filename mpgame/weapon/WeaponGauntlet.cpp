@@ -286,6 +286,19 @@ void rvWeaponGauntlet::Attack ( void ) {
 				float dmgScale = 1.0f;
 				dmgScale *= owner->PowerUpModifier( PMOD_MELEE_DAMAGE );
 				ent->Damage ( owner, owner, playerViewAxis[0], spawnArgs.GetString ( "def_damage" ), dmgScale, 0 );
+				//MOD for lifesteal
+				if(owner->PowerUpActive(POWERUP_LEVEL1)){
+					owner->health = owner-> health + 20;
+				}
+				if(owner->PowerUpActive(POWERUP_LEVEL2)){
+					owner->health = owner-> health + 30;
+				}
+				if(owner->PowerUpActive(POWERUP_LEVEL3)){
+					owner->health = owner-> health + 40;
+				}
+				if(owner->PowerUpActive(POWERUP_LEVEL4)){
+					owner->health = owner-> health + 50;
+				}
 				StartSound( "snd_hit", SND_CHANNEL_ANY, 0, false, NULL );
 				if ( ent->spawnArgs.GetBool( "bleed" ) ) {
 					PlayLoopSound( LOOP_FLESH );

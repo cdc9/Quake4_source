@@ -20,7 +20,7 @@ public:
 	WeaponNapalmGun ( void );
 	~WeaponNapalmGun ( void );
 
-	virtual void			Spawn				( void );
+	//virtual void			Spawn				( void );
 	virtual void			Think				( void );
 	virtual void			MuzzleRise			( idVec3 &origin, idMat3 &axis );
 
@@ -81,6 +81,7 @@ WeaponNapalmGun::~WeaponNapalmGun( void ) { }
 WeaponNapalmGun::Spawn
 ================
 */
+/*
 void WeaponNapalmGun::Spawn( void ) {
 	assert(viewModel);
 	idAnimator* animator = viewModel->GetAnimator();
@@ -106,7 +107,7 @@ void WeaponNapalmGun::Spawn( void ) {
 	cylinderState = CYLINDER_RESET_POSITION;
 	zoomed = false;
 }
-
+*/
 /*
 ================
 WeaponNapalmGun::Think

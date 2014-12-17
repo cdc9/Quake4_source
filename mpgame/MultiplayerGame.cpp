@@ -5914,6 +5914,10 @@ void idMultiplayerGame::CheckSpecialLights( void ) {
 	idPlayer *quadDamageCarrier = NULL;
 	idPlayer *regenerationCarrier = NULL;
 	idPlayer *hasteCarrier = NULL;
+	idPlayer *level1Carrier = NULL;
+	idPlayer *level2Carrier = NULL;
+	idPlayer *level3Carrier = NULL;
+	idPlayer *level4Carrier = NULL;
 
 	for( int i = 0 ; i < gameLocal.numClients ; i++ ) {
 		idEntity *ent = gameLocal.entities[ i ];
@@ -5941,6 +5945,18 @@ void idMultiplayerGame::CheckSpecialLights( void ) {
 		}
 		else if( p->PowerUpActive( POWERUP_HASTE ) ) {
 			hasteCarrier = p;
+		}
+		else if( p->PowerUpActive( POWERUP_LEVEL1 ) ) {
+			level1Carrier = p;
+		}
+		else if( p->PowerUpActive( POWERUP_LEVEL2 ) ) {
+			level2Carrier = p;
+		}
+		else if( p->PowerUpActive( POWERUP_LEVEL3 ) ) {
+			level3Carrier = p;
+		}
+		else if( p->PowerUpActive( POWERUP_LEVEL4 ) ) {
+			level4Carrier = p;
 		}
 	}
 
@@ -8290,6 +8306,7 @@ void idMultiplayerGame::AddPlayerScore( idPlayer* player, int amount ) {
 	playerState[ player->entityNumber ].fragCount += amount;
 	playerState[ player->entityNumber ].fragCount = idMath::ClampInt( MP_PLAYER_MINFRAGS, MP_PLAYER_MAXFRAGS, playerState[ player->entityNumber ].fragCount );
 }
+
 
 void idMultiplayerGame::AddPlayerTeamScore( idPlayer* player, int amount ) {
 	if( player == NULL ) {

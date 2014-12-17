@@ -208,6 +208,7 @@ typedef struct mpPlayerState_s {
 	playerVote_t	vote;			// player's vote
 	bool			scoreBoardUp;	// toggle based on player scoreboard button, used to activate de-activate the scoreboard gui
 	bool			ingame;
+	int				levelCount;		//Mod for level up
 } mpPlayerState_t;
 
 const int MAX_INSTANCES = 8;
@@ -582,6 +583,8 @@ public:
 
 	void			AddPrivatePlayer( int clientId );
 	void			RemovePrivatePlayer( int clientId );
+	//Level-up code
+	void			AddPlayerLevelCount(idPlayer* player, int amount );
 
 //RAVEN BEGIN
 //asalmon: Xenon scoreboard update

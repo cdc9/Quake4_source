@@ -13,7 +13,7 @@ public:
 	rvWeaponDarkMatterGun ( void );
 	~rvWeaponDarkMatterGun ( void );
 
-	virtual void			Spawn				( void );
+	//virtual void			Spawn				( void );
 	void					Save				( idSaveGame *savefile ) const;
 	void					Restore				( idRestoreGame *savefile );
 	void					PreSave					( void );
@@ -88,6 +88,7 @@ rvWeaponDarkMatterGun::~rvWeaponDarkMatterGun ( void ) {
 rvWeaponDarkMatterGun::Spawn
 ================
 */
+/*
 void rvWeaponDarkMatterGun::Spawn ( void ) {
 	SetState ( "Raise", 0 );	
 	
@@ -101,7 +102,7 @@ void rvWeaponDarkMatterGun::Spawn ( void ) {
 	
 	jointCore = viewModel->GetAnimator()->GetJointHandle ( spawnArgs.GetString ( "joint_core" ) );
 }
-
+*/
 /*
 ================
 rvWeaponDarkMatterGun::Save

@@ -13,7 +13,7 @@ public:
 
 	rvWeaponRailgun ( void );
 
-	virtual void			Spawn				( void );
+	//virtual void			Spawn				( void );
 	virtual void			Think				( void );
 	void					Save				( idSaveGame *savefile ) const;
 	void					Restore				( idRestoreGame *savefile );
@@ -52,10 +52,11 @@ rvWeaponRailgun::rvWeaponRailgun ( void ) {
 rvWeaponRailgun::Spawn
 ================
 */
+/*
 void rvWeaponRailgun::Spawn ( void ) {
 	SetState ( "Raise", 0 );	
 }
-
+*/
 /*
 ================
 rvWeaponRailgun::Save

@@ -11,7 +11,7 @@ public:
 
 	rvWeaponMachinegun ( void );
 
-	virtual void		Spawn				( void );
+	//virtual void		Spawn				( void );
 	virtual void		Think				( void );
 	void				Save				( idSaveGame *savefile ) const;
 	void				Restore				( idRestoreGame *savefile );
@@ -52,6 +52,7 @@ rvWeaponMachinegun::rvWeaponMachinegun ( void ) {
 rvWeaponMachinegun::Spawn
 ================
 */
+/*
 void rvWeaponMachinegun::Spawn ( void ) {
 	spreadZoom = spawnArgs.GetFloat ( "spreadZoom" );
 	fireHeld   = false;
@@ -60,7 +61,7 @@ void rvWeaponMachinegun::Spawn ( void ) {
 	
 	Flashlight ( owner->IsFlashlightOn() );
 }
-
+*/
 /*
 ================
 rvWeaponMachinegun::Save

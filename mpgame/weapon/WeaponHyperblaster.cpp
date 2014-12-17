@@ -14,7 +14,7 @@ public:
 
 	rvWeaponHyperblaster ( void );
 
-	virtual void			Spawn				( void );
+	//virtual void			Spawn				( void );
 	void					Save				( idSaveGame *savefile ) const;
 	void					Restore				( idRestoreGame *savefile );
 	void					PreSave				( void );
@@ -53,13 +53,14 @@ rvWeaponHyperblaster::rvWeaponHyperblaster ( void ) {
 rvWeaponHyperblaster::Spawn
 ================
 */
+/*
 void rvWeaponHyperblaster::Spawn ( void ) {
 	jointBatteryView = viewAnimator->GetJointHandle ( spawnArgs.GetString ( "joint_view_battery" ) );
 	spinning		 = false;
 	
 	SetState ( "Raise", 0 );	
 }
-
+*/
 /*
 ================
 rvWeaponHyperblaster::Save

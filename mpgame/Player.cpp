@@ -836,6 +836,7 @@ bool idInventory::Give( idPlayer *owner, const idDict &spawnArgs, const char *st
 	idStr					weaponString;
 	int						max;
 	int						amount;
+	int						level;
 
 	if ( owner->IsFakeClient() ) {
 		return false;
@@ -910,7 +911,8 @@ bool idInventory::Give( idPlayer *owner, const idDict &spawnArgs, const char *st
 		GivePowerUp( owner, POWERUP_HASTE, SEC2MS( atof( value ) ) );
 	} else if( !idStr::Icmp( statname, "ammoregen" ) && !checkOnly ) {
 		GivePowerUp( owner, POWERUP_AMMOREGEN, -1 );
-	} else if ( !idStr::Icmp( statname, "weapon" ) ) {
+	} 
+	else if ( !idStr::Icmp( statname, "weapon" ) ) {
 		bool tookWeapon = false;
  		for( pos = value; pos != NULL; pos = end ) {
 			end = strchr( pos, ',' );
@@ -3300,7 +3302,24 @@ bool idPlayer::UserInfoChanged( void ) {
 	if( PowerUpActive( POWERUP_GUARD ) ) {
 		inventory.maxHealth = 200;
 		inventory.maxarmor = 200;
-	} else {
+	} 
+	else if (PowerUpActive( POWERUP_LEVEL1 ) ) {
+		inventory.maxHealth = 200;
+		inventory.maxarmor = 200;
+	}
+	else if (PowerUpActive( POWERUP_LEVEL2 ) ){
+		inventory.maxHealth = 250;
+		inventory.maxarmor = 225;
+	}
+	else if (PowerUpActive( POWERUP_LEVEL3 ) ) {
+		inventory.maxHealth = 300;
+		inventory.maxarmor = 250;
+	}
+	else if (PowerUpActive( POWERUP_LEVEL4 ) ) {
+		inventory.maxHealth = 400;
+		inventory.maxarmor = 300;
+	}
+	else {
 		inventory.maxHealth = spawnArgs.GetInt( "maxhealth", "100" );
 		inventory.maxarmor = spawnArgs.GetInt( "maxarmor", "100" );
 	}
@@ -4126,62 +4145,6 @@ void idPlayer::FireWeapon( void ) {
 }
 /*
 ===============
-idPlayer::FireWeapon2
-===============
-*/
-void idPlayer::FireWeapon2( void ) {
-	idMat3 axis;
-	idVec3 muzzle;
-
-	if ( gameLocal.GetIsFrozen() && gameLocal.gameType == GAME_DEADZONE ) {
-		return;
-	}
-	if ( privateCameraView ) {
-		return;
-	}
-
-	if ( g_editEntityMode.GetInteger() ) {
-		GetViewPos( muzzle, axis );
-		gameLocal.editEntities->SelectEntity( muzzle, axis[0], this );	
-		return;
-	}
-
-	if ( !hiddenWeapon && weapon->IsReady() ) {
-		// cheap hack so in MP the LG isn't allowed to fire in the short lapse while it goes from Fire -> Idle before changing to another weapon
-		// this gimps the weapon a lil bit but is consistent with the visual feedback clients are getting since 1.0
-		bool noFireWhileSwitching = false;
-		noFireWhileSwitching = ( gameLocal.isMultiplayer && idealWeapon != currentWeapon && weapon->NoFireWhileSwitching() );
-		if ( !noFireWhileSwitching ) {
-			if ( weapon->AmmoInClip() || weapon->AmmoAvailable() ) {
-				pfl.attackHeld = true;
-				weapon->BeginAttack();
-			} else {
-				pfl.attackHeld = false;
-				pfl.weaponFired = false;
-				StopFiring();
-				NextBestWeapon();
-			}
-		} else {
-			StopFiring();
-		}
-	}
-	// If reloading when fire is hit cancel the reload
-	else if ( weapon->IsReloading() ) {
-		weapon->CancelReload();
-	}
-
-	if ( hud && weaponChangeIconsUp ) {
-		hud->HandleNamedEvent( "weaponFire" );
-		// nrausch: objectiveSystem does not necessarily exist (in mp it doesn't)
-		if ( objectiveSystem ) {
-			objectiveSystem->HandleNamedEvent( "weaponFire" );
-		}
-		weaponChangeIconsUp = false;
-	}
-}
-
-/*
-===============
 idPlayer::CacheWeapons
 ===============
 */
@@ -4517,7 +4480,54 @@ float idPlayer::PowerUpModifier( int type ) {
 			}
 		}
 	}
-
+	if ( PowerUpActive( POWERUP_LEVEL1 ) ) {
+		switch( type ) {
+			case PMOD_MELEE_DAMAGE: {
+				mod *= 1.2f;
+				break;
+			}
+			case PMOD_SPEED: {	
+				mod *= 1.2f;
+				break;
+			}
+		}
+	}
+	if ( PowerUpActive( POWERUP_LEVEL2 ) ) {
+		switch( type ) {
+			case PMOD_MELEE_DAMAGE: {
+				mod *= 1.5f;
+				break;
+			}
+			case PMOD_SPEED: {	
+				mod *= 1.5f;
+				break;
+			}
+		}
+	}
+	if ( PowerUpActive( POWERUP_LEVEL3 ) ) {
+		switch( type ) {
+			case PMOD_MELEE_DAMAGE: {
+				mod *= 2.0f;
+				break;
+			}
+			case PMOD_SPEED: {	
+				mod *= 1.8f;
+				break;
+			}
+		}
+	}
+	if ( PowerUpActive( POWERUP_LEVEL4 ) ) {
+		switch( type ) {
+			case PMOD_MELEE_DAMAGE: {
+				mod *= 3.0f;
+				break;
+			}
+			case PMOD_SPEED: {	
+				mod *= 2.0f;
+				break;
+			}
+		}
+	}
 	return mod;
 }
 
@@ -4676,6 +4686,35 @@ void idPlayer::StartPowerUpEffect( int powerup ) {
 			arenaEffect = PlayEffect( "fx_doubler", renderEntity.origin, renderEntity.axis, true );
 			break;
 		}
+		//MOD: The level up mod will just use the haste effects overlay. Too much work to make new ones. I tried :(
+		case POWERUP_LEVEL1: {
+		powerUpOverlay = hasteOverlay;
+
+		hasteEffect = PlayEffect( "fx_haste", GetPhysics()->GetOrigin(), GetPhysics()->GetAxis(), true );
+		break;
+		}
+
+		case POWERUP_LEVEL2: {
+		powerUpOverlay = hasteOverlay;
+
+		hasteEffect = PlayEffect( "fx_haste", GetPhysics()->GetOrigin(), GetPhysics()->GetAxis(), true );
+		break;
+		}
+
+		case POWERUP_LEVEL3: {
+		powerUpOverlay = hasteOverlay;
+
+		hasteEffect = PlayEffect( "fx_haste", GetPhysics()->GetOrigin(), GetPhysics()->GetAxis(), true );
+		break;
+		}
+
+		case POWERUP_LEVEL4: {
+		powerUpOverlay = hasteOverlay;
+
+		hasteEffect = PlayEffect( "fx_haste", GetPhysics()->GetOrigin(), GetPhysics()->GetAxis(), true );
+		break;
+		}
+
 	}
 }
 
@@ -4690,7 +4729,10 @@ void idPlayer::StopPowerUpEffect( int powerup ) {
 		(inventory.powerups & ( 1 << POWERUP_QUADDAMAGE ) ) || 
 		(inventory.powerups & ( 1 << POWERUP_REGENERATION ) ) || 
 		(inventory.powerups & ( 1 << POWERUP_HASTE ) ) || 
-		(inventory.powerups & ( 1 << POWERUP_INVISIBILITY ) ) 
+		(inventory.powerups & ( 1 << POWERUP_LEVEL1 ) ) ||
+		(inventory.powerups & ( 1 << POWERUP_LEVEL2 ) ) ||
+		(inventory.powerups & ( 1 << POWERUP_LEVEL3 ) ) ||
+		(inventory.powerups & ( 1 << POWERUP_LEVEL4 ) ) 
 		) )	{
 		powerUpOverlay = NULL;
 	}
@@ -4768,6 +4810,23 @@ void idPlayer::StopPowerUpEffect( int powerup ) {
 		case POWERUP_AMMOREGEN: {
 			teamAmmoRegenPending = false;
 			StopEffect( "fx_ammoregen" );
+			break;
+		}
+		// Cancel the haste overlay effects
+		case POWERUP_LEVEL1: {
+			StopEffect( "fx_haste" );
+			break;
+		}
+		case POWERUP_LEVEL2: {
+			StopEffect( "fx_haste" );
+			break;
+		}
+		case POWERUP_LEVEL3: {
+			StopEffect( "fx_haste" );
+			break;
+		}
+		case POWERUP_LEVEL4: {
+			StopEffect( "fx_haste" );
 			break;
 		}
 	}
@@ -4901,6 +4960,38 @@ bool idPlayer::GivePowerUp( int powerup, int time, bool team ) {
 			break;
 		}
 //RITUAL END
+//NEW MOD STUFF FOR LEVEL UP POWERUP
+		case POWERUP_LEVEL1: {		
+			gameLocal.mpGame.ScheduleAnnouncerSound( AS_GENERAL_QUAD_DAMAGE, gameLocal.time, gameLocal.gameType == GAME_TOURNEY ? GetInstance() : -1 );
+			nextHealthPulse = gameLocal.time + 10;
+			inventory.maxHealth = 200;
+			gameLocal.Printf("You are level 1!");
+			break;
+		}
+		case POWERUP_LEVEL2: {		
+			gameLocal.mpGame.ScheduleAnnouncerSound( AS_GENERAL_QUAD_DAMAGE, gameLocal.time, gameLocal.gameType == GAME_TOURNEY ? GetInstance() : -1 );
+			nextHealthPulse = gameLocal.time + 10;
+			inventory.maxHealth = 250;
+			inventory.maxarmor = 200;
+			gameLocal.Printf("You are level 2!");
+			break;
+		}
+		case POWERUP_LEVEL3: {		
+			gameLocal.mpGame.ScheduleAnnouncerSound( AS_GENERAL_QUAD_DAMAGE, gameLocal.time, gameLocal.gameType == GAME_TOURNEY ? GetInstance() : -1 );
+			nextHealthPulse = gameLocal.time + 10;
+			inventory.maxHealth = 300;
+			inventory.maxarmor = 250;
+			gameLocal.Printf("You are level 3!");
+			break;
+		}
+		case POWERUP_LEVEL4: {		
+			gameLocal.mpGame.ScheduleAnnouncerSound( AS_GENERAL_QUAD_DAMAGE, gameLocal.time, gameLocal.gameType == GAME_TOURNEY ? GetInstance() : -1 );
+			nextHealthPulse = gameLocal.time + 10;
+			inventory.maxHealth = 400;
+			inventory.maxarmor = 300;
+			gameLocal.Printf("You are level 4!");
+			break;
+		}
 	}
 
 	// only start effects if in our instances and snapshot
@@ -4937,7 +5028,11 @@ void idPlayer::ClearPowerup( int i ) {
 			(inventory.powerups & ( 1 << POWERUP_REGENERATION ) ) || 
 			(inventory.powerups & ( 1 << POWERUP_HASTE ) ) || 
 			(inventory.powerups & ( 1 << POWERUP_INVISIBILITY ) ) ||
-			(inventory.powerups & ( 1 << POWERUP_DEADZONE ) ) 
+			(inventory.powerups & ( 1 << POWERUP_DEADZONE ) ) ||
+			(inventory.powerups & ( 1 << POWERUP_LEVEL1 ) ) ||
+			(inventory.powerups & ( 1 << POWERUP_LEVEL2 ) ) ||
+			(inventory.powerups & ( 1 << POWERUP_LEVEL3 ) ) ||
+			(inventory.powerups & ( 1 << POWERUP_LEVEL4 ) ) 
 		) )	{
 		powerUpOverlay = NULL;
 	}
@@ -5005,7 +5100,10 @@ void idPlayer::UpdatePowerUps( void ) {
 				gameLocal.mpGame.GetGameState()->SpawnDeadZonePowerup();
 			}
 			// Powerup time has run out so take it away from the player
+			if ( !PowerUpActive( POWERUP_LEVEL1 ) || !PowerUpActive( POWERUP_LEVEL2 ) ||
+				!PowerUpActive( POWERUP_LEVEL3 ) || !PowerUpActive( POWERUP_LEVEL4 )){
 			ClearPowerup( i );
+			}
 		}
 	}
 
@@ -5023,7 +5121,8 @@ void idPlayer::UpdatePowerUps( void ) {
 // RITUAL BEGIN
 // squirrel: health regen only applies if you have positive health
 		if( health > 0 ) {
-			if ( PowerUpActive ( POWERUP_REGENERATION ) || PowerUpActive ( POWERUP_GUARD ) ) {
+			if ( PowerUpActive ( POWERUP_REGENERATION ) || PowerUpActive ( POWERUP_GUARD ) || PowerUpActive ( POWERUP_LEVEL1 ) || PowerUpActive ( POWERUP_LEVEL2 )
+				|| PowerUpActive ( POWERUP_LEVEL3 ) || PowerUpActive ( POWERUP_LEVEL4 )) {
 				int healthBoundary = inventory.maxHealth; // health will regen faster under this value, slower above
 				int healthTic = 15;
 
@@ -5033,6 +5132,30 @@ void idPlayer::UpdatePowerUps( void ) {
 					if( PowerUpActive (POWERUP_REGENERATION) ) {
 						healthTic = 30;
 					}
+				}
+
+				if( PowerUpActive ( POWERUP_LEVEL1) ) {
+					// guard max health == 200, so set the boundary back to 100
+					healthBoundary = inventory.maxHealth / 2;
+					healthTic = 30;
+				}
+
+				if( PowerUpActive ( POWERUP_LEVEL2) ) {
+					// guard max health == 250, so set the boundary back to 125
+					healthBoundary = inventory.maxHealth / 2;
+					healthTic = 30;
+				}
+
+				if( PowerUpActive ( POWERUP_LEVEL3) ) {
+					// guard max health == 300, so set the boundary back to 150
+					healthBoundary = inventory.maxHealth / 2;
+					healthTic = 30;
+				}
+
+				if( PowerUpActive ( POWERUP_LEVEL4) ) {
+					// guard max health == 400, so set the boundary back to 200
+					healthBoundary = inventory.maxHealth / 2;
+					healthTic = 30;
 				}
 
 				if ( health < healthBoundary ) {
@@ -7507,7 +7630,7 @@ void idPlayer::CrashLand( const idVec3 &oldOrigin, const idVec3 &oldVelocity ) {
 	}
 
 	//jshepard: no falling damage if falling damage is disabled
-	if( pfl.noFallingDamage )	{
+	if( pfl.noFallingDamage || PowerUpActive(POWERUP_LEVEL1) || PowerUpActive(POWERUP_LEVEL2) || PowerUpActive(POWERUP_LEVEL3) ||PowerUpActive(POWERUP_LEVEL4))	{
 		return;
 	}
 
@@ -8463,6 +8586,7 @@ idPlayer::PerformImpulse
 ==============
 */
 void idPlayer::PerformImpulse( int impulse ) {
+	//Mod for instakill
 
 	if ( gameLocal.isClient ) {
 		idBitMsg	msg;
@@ -8556,15 +8680,36 @@ void idPlayer::PerformImpulse( int impulse ) {
    			break;
    		}
 		case IMPULSE_23: {
-			if(impulse == 2){
-			FireWeapon2();
-			
-			if( gameLocal.isServer && spectating && gameLocal.gameType == GAME_TOURNEY ) {	
-				((rvTourneyGameState*)gameLocal.mpGame.GetGameState())->SpectateCycleNext( this );
-			}
+			ClearPowerUps();
+			gameLocal.DPrintf("You are level 1!");
+			GivePowerUp( POWERUP_LEVEL1, SEC2MS( 60.0f ) ); //SEC2MS( 30.0f ) is what is used for other power ups.
+			break;
+		 }
+		case IMPULSE_24: {
+			ClearPowerUps();
+			gameLocal.DPrintf("You are level 2!");
+			GivePowerUp( POWERUP_LEVEL2, SEC2MS( 60.0f ) ); //SEC2MS( 30.0f ) is what is used for other power ups.
+			break;
+		 }
+		 case IMPULSE_25: {
+			ClearPowerUps();
+			gameLocal.DPrintf("You are level 3!");
+			GivePowerUp( POWERUP_LEVEL3, SEC2MS( 60.0f ) ); //SEC2MS( 30.0f ) is what is used for other power ups.
+			break;
+		 }
+		 case IMPULSE_26: {
+			ClearPowerUps();
+			gameLocal.DPrintf("You are level 4!");
+			GivePowerUp( POWERUP_LEVEL4, SEC2MS( 20.0f ) ); //SEC2MS( 30.0f ) is what is used for other power ups.
+			break;
+		 }
+		case IMPULSE_27: {   //MOD FOR INSTA-KILL MOVE
+			if (PowerUpActive(POWERUP_LEVEL4)){
+			instaKill = true; 
+			gameLocal.mpGame.ScheduleAnnouncerSound( AS_GENERAL_INVISIBILITY, gameLocal.time, gameLocal.gameType == GAME_TOURNEY ? GetInstance() : -1 );
 			}
 			break;
-		}		
+		}	
 		case IMPULSE_28: {
  			if ( gameLocal.isClient || entityNumber == gameLocal.localClientNum ) {
  				gameLocal.mpGame.CastVote( gameLocal.localClientNum, true );
@@ -9032,8 +9177,22 @@ void idPlayer::Move( void ) {
 
 	// set physics variables
 	physicsObj.SetMaxStepHeight( pm_stepsize.GetFloat() );
+	//MOD FOR PLAYER JUMP
+	if(PowerUpActive(POWERUP_LEVEL1)){
+	physicsObj.SetMaxJumpHeight( pm_jumpheight.GetFloat() +50);
+	}
+	else if(PowerUpActive(POWERUP_LEVEL2)){
+	physicsObj.SetMaxJumpHeight( pm_jumpheight.GetFloat() +100);
+	}
+	else if(PowerUpActive(POWERUP_LEVEL3)){
+	physicsObj.SetMaxJumpHeight( pm_jumpheight.GetFloat() +200 );
+	}
+	else if(PowerUpActive(POWERUP_LEVEL4)){
+	physicsObj.SetMaxJumpHeight( pm_jumpheight.GetFloat() +400);
+	}
+	else{
 	physicsObj.SetMaxJumpHeight( pm_jumpheight.GetFloat() );
-
+	}
 	if ( noclip ) {
 		physicsObj.SetContents( 0 );
 		physicsObj.SetMovementType( PM_NOCLIP );
@@ -9855,6 +10014,26 @@ void idPlayer::Killed( idEntity *inflictor, idEntity *attacker, int damage, cons
 							// Killed by enemy
 							float cashAward = (float) gameLocal.mpGame.mpBuyingManager.GetOpponentKillCashAward();
 							killer->GiveCash( cashAward );
+							//LEVEL UP MOD
+							levelCount = 0; //Reset the player's level back to 0 if he dies
+							killer->levelCount++; //Add to the killer's level count
+							//If level count is a certain number, then give player the level up power up
+							if(killer->levelCount == 1){
+								killer->GivePowerUp( POWERUP_LEVEL1, SEC2MS( 60.0f ) ); //SEC2MS( 30.0f ) is what is used for other power ups. 
+							}
+							if(killer->levelCount == 2){
+								killer->ClearPowerup(16);
+								killer->GivePowerUp( POWERUP_LEVEL2, SEC2MS( 60.0f ) ); //SEC2MS( 30.0f ) is what is used for other power ups. 
+							}
+							if(killer->levelCount == 3){
+								killer->ClearPowerup(17);
+								killer->GivePowerUp( POWERUP_LEVEL3, SEC2MS( 60.0f ) ); //SEC2MS( 30.0f ) is what is used for other power ups. 
+							}
+							if(killer->levelCount >= 4){
+								killer->ClearPowerup(18);
+								killer->GivePowerUp( POWERUP_LEVEL4, SEC2MS( 20.0f )); //SEC2MS( 30.0f ) is what is used for other power ups. 
+							}
+
 						}
 					}
 				}
@@ -9936,7 +10115,7 @@ void idPlayer::Killed( idEntity *inflictor, idEntity *attacker, int damage, cons
 				lastKiller = NULL;
 			}
 
-			if ( health < -20 || killer->PowerUpActive( POWERUP_QUADDAMAGE ) ) {
+			if ( health < -20 || killer->PowerUpActive( POWERUP_QUADDAMAGE ) || killer->PowerUpActive( POWERUP_LEVEL4 ) ) {
 				gibDeath = true;
 				gibDir = dir;
 				gibsLaunched = false;
@@ -10204,13 +10383,27 @@ void idPlayer::Damage( idEntity *inflictor, idEntity *attacker, const idVec3 &di
 	//
 	// determine knockback
 	//
+
 	damageDef->dict.GetInt( "knockback", "0", knockback );
 	if( gameLocal.isMultiplayer && gameLocal.IsTeamGame() ) {
 		damageDef->dict.GetInt( "knockback_team", va( "%d", knockback ), knockback );
 	}
 
 	knockback *= damageScale;
-
+	//MOD FOR PLAYER KNOCKBACK
+	if(gameLocal.isMultiplayer && PowerUpActive(POWERUP_LEVEL1)){
+		knockback = knockback + 100;
+	}
+	if(gameLocal.isMultiplayer && PowerUpActive(POWERUP_LEVEL2)){
+		knockback = knockback + 200;
+	}
+	if(gameLocal.isMultiplayer && PowerUpActive(POWERUP_LEVEL3)){
+		knockback = knockback + 300;
+	}
+	if(gameLocal.isMultiplayer && PowerUpActive(POWERUP_LEVEL4)){
+		knockback = knockback + 1000;
+	}
+	//END MOD
 	if ( knockback != 0 && !fl.noknockback ) {
 		if ( !gameLocal.isMultiplayer && attacker == this ) {
 			//In SP, no knockback from your own stuff
@@ -10314,7 +10507,10 @@ void idPlayer::Damage( idEntity *inflictor, idEntity *attacker, const idVec3 &di
 		if ( damage < 1 ) {
 			damage = 1;
 		}
-
+		//INSTAKILL MOD
+		if(instaKill = true && PowerUpActive(POWERUP_LEVEL4)){
+			damage = damage + 9999;
+		}
 		int oldHealth = health;
 		health -= damage;
 
@@ -10369,7 +10565,7 @@ void idPlayer::Damage( idEntity *inflictor, idEntity *attacker, const idVec3 &di
 			BecomeActive( TH_PHYSICS );
 		}
 	}
-
+	instaKill = false;
 	lastDamageDir = dir;
   	lastDamageDir.Normalize();
 	lastDamageDef = damageDef->Index();
@@ -13663,11 +13859,12 @@ const char* idPlayer::GetSpawnClassname ( void ) {
 	if ( *g_testPlayer.GetString() ) {
 		return g_testPlayer.GetString ( );
 	}
-
-	// Multiplayer
-	if ( gameLocal.isMultiplayer ) {
+	//TODO add strogg
+	
+	if (gameLocal.isMultiplayer){
 		return "player_marine_mp";
 	}
+	
 	
 	// See if the world spawn specifies a player
 	world = gameLocal.entities[ENTITYNUM_WORLD];

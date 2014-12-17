@@ -145,7 +145,14 @@ enum {
 	POWERUP_TEAM_HEALTH_REGEN,
 	POWERUP_TEAM_DAMAGE_MOD,
 	
+	//New Power Ups
+	POWERUP_LEVEL1,
+	POWERUP_LEVEL2,
+	POWERUP_LEVEL3,
+	POWERUP_LEVEL4,
+
 	POWERUP_MAX
+
 };
 
 enum {
@@ -774,11 +781,10 @@ public:
 	bool					IsLocalClient( void ) const { return entityNumber == gameLocal.localClientNum || IsFakeClient(); }
 	bool					IsSpectatedClient( void ) const;
 	bool					IsWaitingForPredictAck( void ) const;
-
 protected:
 	void					SetupHead( const char* modelKeyName = "", idVec3 headOffset = idVec3(0, 0, 0) );
 
-private:
+public:
 	float					vehicleCameraDist;
 
 	jointHandle_t			hipJoint;
@@ -1005,7 +1011,6 @@ private:
 
 	void					StopFiring( void );
 	void					FireWeapon( void );
-	void					FireWeapon2( void );
 	void					Weapon_Combat( void );
 	void					Weapon_NPC( void );
 	void					Weapon_GUI( void );
@@ -1141,6 +1146,9 @@ private:
 	stateResult_t			State_Legs_Dead					( const stateParms_t& parms );
 	
  	CLASS_STATES_PROTOTYPE( idPlayer );
+	//Mod for level up
+	int						levelCount; //The count that tells when the player should level up
+	bool					instaKill;
 };
 
 ID_INLINE bool idPlayer::IsBeingTalkedTo( void ) {

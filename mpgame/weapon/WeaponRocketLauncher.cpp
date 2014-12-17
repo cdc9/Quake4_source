@@ -17,7 +17,7 @@ public:
 	rvWeaponRocketLauncher ( void );
 	~rvWeaponRocketLauncher ( void );
 
-	virtual void			Spawn				( void );
+	//virtual void			Spawn				( void );
 	virtual void			Think				( void );
 
 	void					Save( idSaveGame *saveFile ) const;
@@ -91,7 +91,9 @@ rvWeaponRocketLauncher::~rvWeaponRocketLauncher ( void ) {
 rvWeaponRocketLauncher::Spawn
 ================
 */
+/*
 void rvWeaponRocketLauncher::Spawn ( void ) {
+
 	float f;
 
 	idleEmpty = false;
@@ -130,8 +132,9 @@ void rvWeaponRocketLauncher::Spawn ( void ) {
 
 	SetState ( "Raise", 0 );	
 	SetRocketState ( "Rocket_Idle", 0 );
+	
 }
-
+*/
 /*
 ================
 rvWeaponRocketLauncher::Think
